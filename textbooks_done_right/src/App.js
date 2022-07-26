@@ -9,50 +9,84 @@ function App() {
 
     const bookParser = (book) => {
 
-	let inBlue = false;
-	let bIdx = -1;
-	let blues = []
-
-
-	const checkBlue = (obj) => {
-	    if (obj.props && obj.props.className) {
-		if (obj.props.className.includes("fca")) {
-		    return "start"
-		}
-
-		else if (obj.props.className.includes("fc7") || obj.props.className.includes("x9")) {
-		    return "end"
-		}
-	    }
-	}
-
-	let recursionDepth =  0;
-	let prev = null
-
+	// UTILS //
 	const isObj = (el) => (
 	    typeof el === 'object' &&
 	    !Array.isArray(el) &&
 	    el !== null
 	)
 
-	const search = (obj) => {
+	// CHECKS //
 
-	    let localBlue = checkBlue(obj);
+         // BLUE //
+	let inBlue = false;
+	let bIdx = -1;
+	let blues = []
+	const checkBlue = (obj) => {
+	    let localVal = null;
+	    if (obj.props && obj.props.className) {
+		if (obj.props.className.includes("fca")) {
+		    localVal = "start"
+		}
 
-            if (localBlue === "start") {
+		else if (obj.props.className.includes("fc7") || obj.props.className.includes("x9")) {
+		    localVal = "end"
+		}
+	    }
+
+	    if (localVal === "start") {
 		inBlue = true;
 		bIdx++;
 		blues.push([])
 	    }
 
-	    if (localBlue === "end") {
+	    if (localVal === "end") {
 		inBlue = false
 	    }
 
 	    if (inBlue) {
 		blues[bIdx].push(obj)
 	    }
+	}
 
+	let defIdx = -1;
+	let defs = []
+	let inDef = false;
+
+	const checkDef = (obj) => {
+	    let localVal = null;
+	    if (obj.props && obj.props.className) {
+		if (obj.props.className.includes("fc9")) {
+		    localVal = "start"
+		}
+
+		else if (obj.props.className.includes("x4") || obj.props.className.includes("x9")) {
+		    localVal = "end"
+		}
+	    }
+
+	    if (localVal === "start") {
+		inDef = true;
+		defIdx++;
+		defs.push([])
+	    }
+
+	    if (localVal === "end") {
+		inDef = false
+	    }
+
+	    if (inDef) {
+		defs[defIdx].push(obj)
+	    }
+	}
+
+    	// MAIN RECURSION LOOP //
+	const search = (obj) => {
+
+	    checkBlue(obj);
+	    checkDef(obj);
+
+	    // recurse
 	    if (obj.props && obj.props.children) {
 		if (isObj(obj.props.children)) {
 		    search(obj.props.children)
@@ -62,43 +96,11 @@ function App() {
 		    }
 		}
 	    }
-
-	    /*
-	    console.log("we are searching!", obj)
-    	    if (recursionDepth < 100) {
-		recursionDepth++
-
-		if (obj.props && obj.props.children) {
-
-		    if (isObj(obj.props.children)) {
-			console.log(obj, "it's an object")
-			console.log("we are passing", obj.props.children, "obj!")
-			search(obj.props.children)
-		    } else {
-			console.log("it's not an object..")
-			for (const i of obj.props.children) {
-			    console.log(obj, "it's an el in an arr?")
-			    console.log("we are passing", obj.props.children)
-			    search(i)
-			}
-		    }
-		    prev = obj
-		} else {
-		    console.log("no children", obj, recursionDepth, prev)
-		}
-
-	    } else {
-		console.log("recursionDepth exceeded")
-	    }
-	    */
 	}
-	//search(
-	//const pages = book.props.children[1].props.children[3].props.children;
 
 	search(book)
 
-	console.log(blues)
-
+	console.log(blues, "\n", defs)
     }
 
     useEffect(() => {
