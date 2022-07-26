@@ -2,7 +2,7 @@ import './App.css';
 import parse from 'html-react-parser';
 //import htmlContent from './raw_book.html';
 import book from "./raw_book.jsx";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 
 function App() {
@@ -25,11 +25,11 @@ function App() {
 	const checkBlue = (obj) => {
 	    let localVal = null;
 	    if (obj.props && obj.props.className) {
-		if (obj.props.className.includes("fca")) {
+		if (obj.props.className.split(" ").includes("fca")) {
 		    localVal = "start"
 		}
 
-		else if (obj.props.className.includes("fc7") || obj.props.className.includes("x9")) {
+		else if (obj.props.className.split(" ").includes("fc7") || obj.props.className.split(" ").includes("x9") || obj.props.className.split(" ").includes("x69")) {
 		    localVal = "end"
 		}
 	    }
@@ -56,11 +56,11 @@ function App() {
 	const checkDef = (obj) => {
 	    let localVal = null;
 	    if (obj.props && obj.props.className) {
-		if (obj.props.className.includes("fc9")) {
+		if (obj.props.className.split(" ").includes("fc9")) {
 		    localVal = "start"
 		}
 
-		else if (obj.props.className.includes("x4") || obj.props.className.includes("x9")) {
+		else if (obj.props.className.split(" ").includes("x4") || obj.props.className.split(" ").includes("x9")  || obj.props.className.split(" ").includes("x69")) {
 		    localVal = "end"
 		}
 	    }
@@ -100,19 +100,28 @@ function App() {
 
 	search(book)
 
-	console.log(blues, "\n", defs)
+	//console.log(blues, "\n", defs)
+	return blues
+	//NW TODO: we append the page svgs
     }
+
+    const [foundBlues, setBlues] = useState([]);
 
     useEffect(() => {
 	let parsed = parse(book)
 	console.dir(parsed)
-	bookParser(parsed)
+	setBlues(bookParser(parsed))
     }, [])
 
 
     return (
 	<>
 	    {/*{parsed}*/}
+	    {foundBlues.map((blue, idx) => {
+		return blue.map((el, idx) => {
+		    return el
+		})}
+	    )}
 	</>
     );
 }
