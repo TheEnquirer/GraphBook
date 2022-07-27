@@ -91,6 +91,7 @@ function App() {
 		if (isObj(obj.props.children)) {
 		    search(obj.props.children)
 		} else {
+		    if (obj.props.children.push) obj.props.children.push("huh?")
 		    for (const i of obj.props.children) {
 			search(i)
 		    }
@@ -101,27 +102,53 @@ function App() {
 	search(book)
 
 	//console.log(blues, "\n", defs)
-	return blues
+	//return blues
+	return book
 	//NW TODO: we append the page svgs
     }
 
     const [foundBlues, setBlues] = useState([]);
+    const [displayParsed, setParsed] = useState("");
+
+
+    const options = {
+	replace: ({ attribs, children }) => {
+	    if (!attribs) {
+		return;
+	    }
+
+	    console.log(attribs)
+
+	    //if (attribs.class === 'prettify') {
+	    //    return (
+	    //        <span style={{ color: 'hotpink' }}>
+	    //            {domToReact(children, options)}
+	    //        </span>
+	    //    );
+	    //}
+	}
+    };
+
 
     useEffect(() => {
 	let parsed = parse(book)
 	console.dir(parsed)
-	setBlues(bookParser(parsed))
+	//setBlues(bookParser(parsed))
+
+	//parsed = parse(parsed, options)
+
+	setParsed(bookParser(parsed))
     }, [])
 
 
+	    //{foundBlues.map((blue, idx) => {
+	    //    return blue.map((el, idx) => {
+	    //        return el
+	    //    })}
+	    //)}
     return (
 	<>
-	    {/*{parsed}*/}
-	    {foundBlues.map((blue, idx) => {
-		return blue.map((el, idx) => {
-		    return el
-		})}
-	    )}
+	    {displayParsed}
 	</>
     );
 }
