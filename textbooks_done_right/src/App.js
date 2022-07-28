@@ -3,12 +3,14 @@ import parse from 'html-react-parser';
 //import htmlContent from './raw_book.html';
 import book from "./raw_book.jsx";
 import { useEffect, useState } from 'react';
+import reactHtmlReplace from 'react-html-replace';
+import React, { Component } from 'react';
+import _ from 'lodash';
 
 
 function App() {
 
     const bookParser = (book) => {
-
 	// UTILS //
 	const isObj = (el) => (
 	    typeof el === 'object' &&
@@ -25,11 +27,15 @@ function App() {
 	const checkBlue = (obj) => {
 	    let localVal = null;
 	    if (obj.props && obj.props.className) {
-		if (obj.props.className.split(" ").includes("fca")) {
+		if (obj.props.className.split(" ").includes("fca") && inBlue == false) {
 		    localVal = "start"
 		}
 
-		else if (obj.props.className.split(" ").includes("fc7") || obj.props.className.split(" ").includes("x9") || obj.props.className.split(" ").includes("x69")) {
+		else if (
+		    obj.props.className.split(" ").includes("fc7")
+		    || obj.props.className.split(" ").includes("x9")
+		    || obj.props.className.split(" ").includes("x69")
+		) {
 		    localVal = "end"
 		}
 	    }
@@ -47,6 +53,8 @@ function App() {
 	    if (inBlue) {
 		blues[bIdx].push(obj)
 	    }
+
+	    return localVal
 	}
 
 	let defIdx = -1;
@@ -80,6 +88,7 @@ function App() {
 	    }
 	}
 
+
     	// MAIN RECURSION LOOP //
 	const search = (obj) => {
 
@@ -91,7 +100,7 @@ function App() {
 		if (isObj(obj.props.children)) {
 		    search(obj.props.children)
 		} else {
-		    if (obj.props.children.push) obj.props.children.push("huh?")
+		    //if (obj.props.children.push) obj.props.children.push("huh?")
 		    for (const i of obj.props.children) {
 			search(i)
 		    }
@@ -100,9 +109,7 @@ function App() {
 	}
 
 	search(book)
-
-	//console.log(blues, "\n", defs)
-	//return blues
+	console.log(blues)
 	return book
 	//NW TODO: we append the page svgs
     }
@@ -110,42 +117,22 @@ function App() {
     const [foundBlues, setBlues] = useState([]);
     const [displayParsed, setParsed] = useState("");
 
-
-    const options = {
-	replace: ({ attribs, children }) => {
-	    if (!attribs) {
-		return;
-	    }
-
-	    console.log(attribs)
-
-	    //if (attribs.class === 'prettify') {
-	    //    return (
-	    //        <span style={{ color: 'hotpink' }}>
-	    //            {domToReact(children, options)}
-	    //        </span>
-	    //    );
-	    //}
-	}
-    };
-
+    const reconstruct = (book) => {
+	return _.cloneDeep(book)
+	//return book
+    }
 
     useEffect(() => {
-	let parsed = parse(book)
-	console.dir(parsed)
-	//setBlues(bookParser(parsed))
-
-	//parsed = parse(parsed, options)
-
+	let parsed = reconstruct(parse(book))
 	setParsed(bookParser(parsed))
     }, [])
-
 
 	    //{foundBlues.map((blue, idx) => {
 	    //    return blue.map((el, idx) => {
 	    //        return el
 	    //    })}
 	    //)}
+
     return (
 	<>
 	    {displayParsed}
