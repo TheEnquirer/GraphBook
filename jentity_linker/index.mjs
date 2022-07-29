@@ -3,6 +3,8 @@ export const TWELVE = 'twelve.';    // very important
 import FastScanner from 'fastscan';
 import { List } from 'immutable';
 
+import { useMemo } from 'react';
+
 export class DummyAhoLinker {
     constructor() {
         this.scanner = new FastScanner([]);
@@ -15,50 +17,22 @@ export class DummyAhoLinker {
         this.scanner = new FastScanner(this.words);
     }
     find_links(text) {
-        const offWords = this.scanner.search(text);
-        return offWords
+        return this.scanner.search(text)
             // replace previous if idx is the same, append if it isn't
             .reduce((a, c) => a.size > 0 && a.last()[0] == c[0] ? a.set(a.size-1, c) : a.push(c), List())
             // map to the output format of [begin_inc, end_exc, name, definition]
-            .map(([idx, name]) => [idx, idx+name.length, name, this.dictionary[name]])
-            .toJS();
-
-    //
-    //    // find longest match for each start position
-    //    let cur_pos = -1;
-    //    let cur_name = null;
-    //    const ret = [];
-    //    for (const [ pos, name ] of offWords) {
-    //        if (cur_pos != pos) {   // found a new word
-    //            // report the previous one, since we've reached the end of the last section of overlapping words starting at the same place
-    //            if (cur_name !== null)
-    //                ret.push([cur_pos, cur_pos+cur_name.length, cur_name, this.dictionary[cur_name]]);
-    //
-    //            // remember the data about now
-    //            cur_pos = pos;
-    //            cur_name = name;
-    //        }
-    //        else {
-    //            console.log(name, 'is cringe')
-    //        }
-    //    }
-    //    if (cur_name !== null)
-    //        ret.push([cur_pos, cur_pos+cur_name.length, cur_name, this.dictionary[cur_name]]);  // fencepost flush
-    //    console.log(ret)
-    //    return ret;
+            .map(([idx, name]) => [idx, idx+name.length, name, this.dictionary[name]]);
     }
 }
 
 const linker = new DummyAhoLinker();
 const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
 
-console.log(linker.find_links(text))
-linker.register_definition('complex', 'a complex number')
-console.log(linker.find_links(text))
-linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
-console.log(linker.find_links(text))
-
-cringe
+//console.log(linker.find_links(text))
+//linker.register_definition('complex', 'a complex number')
+//console.log(linker.find_links(text))
+//linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
+//console.log(linker.find_links(text))
 
 
 
@@ -68,8 +42,6 @@ cringe
 // can we allow overlapping matches and non-contiguous matches?
 //  currently the dummyaholinker allows overlapping, but not non-contiguous
 //  non-contiguous could be useful for when a word modifies an earlier part of the sentence
-
-import spacy from 'spacy-js';
 
 // ideating
 // hash-trie of lematized words that refer to other words? for quick search
