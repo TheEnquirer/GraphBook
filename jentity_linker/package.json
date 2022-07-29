@@ -1,0 +1,10 @@
+{
+  "name": "jentity_linker",
+  "version": "0.0.1",
+  "description": "link entities",
+  "main": "index.mjs",
+  "license": "MIT",
+  "dependencies": {
+    "spacy-js": "^0.0.5"
+  }
+}

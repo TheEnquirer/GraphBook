@@ -8,9 +8,12 @@
     "@testing-library/user-event": "^13.5.0",
     "fs": "^0.0.1-security",
     "html-react-parser": "^3.0.1",
+    "jentity_linker": "./../jentity_linker",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-html-replace": "^0.1.6",
     "react-scripts": "5.0.1",
+    "react-virtuoso": "^2.16.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

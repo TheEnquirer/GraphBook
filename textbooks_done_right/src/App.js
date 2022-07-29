@@ -9,8 +9,10 @@ import _ from 'lodash';
 import * as ReactDOM from 'react-dom'
 import { Virtuoso } from 'react-virtuoso'
 
+import { TWELVE } from 'jentity_linker';
 
 function App() {
+    console.log('twelve?', TWELVE);
 
     const bookParser = (book) => {
 	// UTILS //
