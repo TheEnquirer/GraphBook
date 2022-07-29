@@ -2,7 +2,7 @@ import './App.css';
 import parse from 'html-react-parser';
 //import htmlContent from './raw_book.html';
 import book from "./raw_book.jsx";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, createElement } from 'react';
 import reactHtmlReplace from 'react-html-replace';
 import React, { Component } from 'react';
 import _ from 'lodash';
@@ -110,10 +110,27 @@ function App() {
 	    }
 	}
 
+	let repChildren = book.props.children[1].props.children[3].props.children
+	book.props.children[1].props.children[3].props.children = [<Virtuoso
+	    style={{ height: "800px", }}
+	    totalCount={200}
+	    //itemContent={(index) => <div>Item {index}</div>}
+	    itemContent={(index) => {
+		return <div style={{minHeight: "1px"}}> {repChildren[index]} </div>
+	    }}
+	/>]
+
+
 	search(book)
 	//console.log(blues)
 	//console.log(
 	//props.children[1].props.children[3].props.children
+
+	//const element = React.createElement(
+	//    'h1',
+	//    {className: 'greeting'},
+	//    'Hello, world!'
+	//);
 
 	return book
 	//NW TODO: we append the page svgs
