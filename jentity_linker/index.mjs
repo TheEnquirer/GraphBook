@@ -1,6 +1,7 @@
 export const TWELVE = 'twelve.';    // very important
 
 import FastScanner from 'fastscan';
+import { List } from 'immutable';
 
 export class DummyAhoLinker {
     constructor() {
@@ -15,41 +16,47 @@ export class DummyAhoLinker {
     }
     find_links(text) {
         const offWords = this.scanner.search(text);
-        //console.log(offWords);
+        return offWords
+            // replace previous if idx is the same, append if it isn't
+            .reduce((a, c) => a.size > 0 && a.last()[0] == c[0] ? a.set(a.size-1, c) : a.push(c), List())
+            // map to the output format of [begin_inc, end_exc, name, definition]
+            .map(([idx, name]) => [idx, idx+name.length, name, this.dictionary[name]])
+            .toJS();
 
-        // find longest match for each start position
-        let cur_pos = -1;
-        let cur_name = null;
-        const ret = [];
-        for (const [ pos, name ] of offWords) {
-            if (cur_pos != pos) {   // found a new word
-                // report the previous one, since we've reached the end of the last section of overlapping words starting at the same place
-                if (cur_name !== null)
-                    ret.push([cur_pos, cur_pos+cur_name.length, cur_name, this.dictionary[cur_name]]);
-
-                // remember the data about now
-                cur_pos = pos;
-                cur_name = name;
-            }
-            else {
-                console.log(name, 'is cringe')
-            }
-        }
-        if (cur_name !== null)
-            ret.push([cur_pos, cur_pos+cur_name.length, cur_name, this.dictionary[cur_name]]);  // fencepost flush
-        console.log(ret)
-        return ret;
+    //
+    //    // find longest match for each start position
+    //    let cur_pos = -1;
+    //    let cur_name = null;
+    //    const ret = [];
+    //    for (const [ pos, name ] of offWords) {
+    //        if (cur_pos != pos) {   // found a new word
+    //            // report the previous one, since we've reached the end of the last section of overlapping words starting at the same place
+    //            if (cur_name !== null)
+    //                ret.push([cur_pos, cur_pos+cur_name.length, cur_name, this.dictionary[cur_name]]);
+    //
+    //            // remember the data about now
+    //            cur_pos = pos;
+    //            cur_name = name;
+    //        }
+    //        else {
+    //            console.log(name, 'is cringe')
+    //        }
+    //    }
+    //    if (cur_name !== null)
+    //        ret.push([cur_pos, cur_pos+cur_name.length, cur_name, this.dictionary[cur_name]]);  // fencepost flush
+    //    console.log(ret)
+    //    return ret;
     }
 }
 
 const linker = new DummyAhoLinker();
 const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
 
-linker.find_links(text)
+console.log(linker.find_links(text))
 linker.register_definition('complex', 'a complex number')
-linker.find_links(text)
+console.log(linker.find_links(text))
 linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
-linker.find_links(text)
+console.log(linker.find_links(text))
 
 cringe
 

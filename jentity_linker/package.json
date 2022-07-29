@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "fastscan": "^1.0.6",
+    "immutable": "^4.1.0",
     "spacy-js": "^0.0.5",
     "spacy-nlp": "^1.0.11"
   }
