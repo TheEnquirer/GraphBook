@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import reactHtmlReplace from 'react-html-replace';
 import React, { Component } from 'react';
 import _ from 'lodash';
+import * as ReactDOM from 'react-dom'
+import { Virtuoso } from 'react-virtuoso'
 
 
 function App() {
@@ -109,7 +111,10 @@ function App() {
 	}
 
 	search(book)
-	console.log(blues)
+	//console.log(blues)
+	//console.log(
+	//props.children[1].props.children[3].props.children
+
 	return book
 	//NW TODO: we append the page svgs
     }
@@ -135,6 +140,11 @@ function App() {
 
     return (
 	<>
+	      {/*return <Virtuoso
+    style={{ height: "400px", }}
+    totalCount={200000}
+    itemContent={(index) => <div>Item {index}</div>}
+  />*/}
 	    {displayParsed}
 	</>
     );
