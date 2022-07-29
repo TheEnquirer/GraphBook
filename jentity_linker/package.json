@@ -5,6 +5,7 @@
   "main": "index.mjs",
   "license": "MIT",
   "dependencies": {
-    "spacy-js": "^0.0.5"
+    "spacy-js": "^0.0.5",
+    "spacy-nlp": "^1.0.11"
   }
 }
