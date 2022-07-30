@@ -2,8 +2,8 @@ import FastScanner from 'fastscan';
 import { nanoid } from 'nanoid';
 import { List } from 'immutable';
 
-import winkNLP from 'wink-nlp';
-const { its, as } = winkNLP;
+import nlp from 'compromise';
+import { stemmer } from 'stemmer';
 
 import { useMemo } from 'react';
 
@@ -74,18 +74,19 @@ export class DummyAhoLinker {
 export class SlowStemSaladLinker {
     constructor() {
         console.log("hewooooooooooooooooorlddd")
-        import model from 'wink-eng-lite-web-model';
         this.dictionary = {};   // nanoid -> definition
         this.stems = {};        // nanoid -> stems list
-        this.nlp = winkNLP(model);
     }
     register_definition(name, definition) {
         const id = nanoid(16);
         this.dictionary[id] = definition;
-        this.stems[id] = 0; // TODO
+        this.stems[id] = name.split(/\s+/).map(stemmer);
     }
     find_links(text) {
-        const doc = 3;
+        const KW_PATTERNS = [  ]
+        //console.log(nlp(text).chunks().out('array'))
+        console.log(nlp(text).terms().out('array'))
+        //console.log(nlp(text).nouns().out('array'))
         //return this.scanner.search(text)
         //    // replace previous if idx is the same, append if it isn't
         //    .reduce((a, c) => a.size > 0 && a.last()[0] == c[0] ? a.set(a.size-1, c) : a.push(c), List())
@@ -102,7 +103,7 @@ console.log(linker.find_links(text))
 linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
 console.log(linker.find_links(text))
 
-
+// consider looking into natural (https://www.npmjs.com/package/natural), which has both stemming and POS, but is for node. there's probably others, but compromise is really pretty :)
 
 
 
