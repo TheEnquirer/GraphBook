@@ -1,9 +1,9 @@
-export const TWELVE = 'twelve.';    // very important
-
 import FastScanner from 'fastscan';
 import { List } from 'immutable';
 
 import { useMemo } from 'react';
+
+export const TWELVE = 'twelve.';    // very important
 
 export class DummyAhoLinker {
     constructor() {

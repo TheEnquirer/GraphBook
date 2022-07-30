@@ -8,8 +8,9 @@ import React, { Component, useMemo } from 'react';
 import _ from 'lodash';
 import * as ReactDOM from 'react-dom'
 import { Virtuoso } from 'react-virtuoso'
+import { List } from 'immutable';
 
-import { TWELVE, DummyAhoLinker } from './jentity_linker';
+import { TWELVE, DummyAhoLinker } from 'jentity_linker';
 
 // hewwwuxxxxxxxxxxxx heres an example of how to use my thingy
 function TextWithHovers({ text }) {
@@ -28,24 +29,23 @@ function TextWithHovers({ text }) {
     // find_links is as fast as i can think to make it, roughly linear on text.length + sum(definitions.keys().map(length)) possibly still worth useMemo though
 
     const parsed = useMemo(() => parser(text), [text]);
-    console.log(parsed)
-    const end_indicies = parsed.map(([b, e, n, d]) => [b, e]).flatten(0);
+    // get the boundaries of the definitions. this will be flattened later
+    const end_indicies = parsed.map(([b, e, n, d]) => List([b, e])).push(text.length);
+    // the boundaries but with a 0 at the start. when we zip this with end_indicies, one will list will be offset -> you get each span
     const beg_indicies = end_indicies.unshift(0);    // might need to .delete() but thats O(N) => cringe
 
-    console.log('end_indicies', end_indicies)
-    console.log('beg_indicies', beg_indicies.toJS())
-
-    const sections = parsed.map(seg => [null, seg]).push(null).flatten(0)   // intersperse with nulls for the non-highlighted sections
-        //.zip(beg_indicies, end_indicies).map(([hover, beg, end], i) =>
-        //    <span key={i} onMouseEnter={hover ? console.log(hover) : () => {}}>{text.slice(beg, end)}</span>
-        //)
-        .zip(beg_indicies, end_indicies).map(([hover, beg, end], i) => {
-            console.log("eeeeeeeeeee", beg, end, text.slice(beg, end), hover)
-            return <span key={i} onMouseEnter={hover ? console.log(hover) : () => {}}>{text.slice(beg, end)}</span>
+    const sections = parsed.map(seg => List([null, seg])).push(null).flatten(0)   // intersperse with nulls for the non-highlighted sections
+        .zip(beg_indicies.toJS().flat(), end_indicies.toJS().flat())
+        .map(([hover, beg, end], i) => {
+            if (hover === null) {   // no definition
+                return <span key={i}>{text.slice(beg, end)}</span>
+            } else {                // theres a definition
+                return <a key={i} style={{ color: '#338833' }} onClick={() => { alert(hover[3]) }}>{text.slice(beg, end)}</a>
+            }
         })
         .toJS();
-    console.log(sections);
-    return <div style={{ border: '2px solid red' }}>hewwwwwwwwwwwwwwwww{sections}</div>;
+
+    return sections;
 
     // sorry if that example wasn't very helpful. i just got in a functional kinda headspace yk
     // the zip offset thing is pretty scuffed i'll admit
@@ -56,7 +56,7 @@ function TextWithHovers({ text }) {
 function App() {
     console.log('twelve?', TWELVE);
 
-    return <TextWithHovers text={ `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.` } />
+    return <TextWithHovers text={ `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate. Anyways, complex numbers are cool right?` } />
 
 
 
