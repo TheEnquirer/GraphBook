@@ -81,11 +81,15 @@ export class SlowStemSaladLinker {
         const id = nanoid(16);
         this.dictionary[id] = definition;
         this.stems[id] = name.split(/\s+/).map(stemmer);
+        //const thing = nlp(name).compute('root').json()[0].terms.map(t => t.root || t.normal);
+        const thing = nlp(name).compute('root').json()[0].terms;
+        console.log(thing);
+        //this.stems[id] = .json[0].terms.map(t => t.root || t.normal); // https://observablehq.com/@spencermountain/compromise-root#cell-23
     }
     find_links(text) {
         const KW_PATTERNS = [  ]
         //console.log(nlp(text).chunks().out('array'))
-        console.log(nlp(text).terms().out('array'))
+        //console.log(nlp(text).terms().out('array'))
         //console.log(nlp(text).nouns().out('array'))
         //return this.scanner.search(text)
         //    // replace previous if idx is the same, append if it isn't
@@ -96,12 +100,14 @@ export class SlowStemSaladLinker {
 }
 
 const linker = new SlowStemSaladLinker();
-const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
+const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugation, since the conjugation of a number that isn't complex does nothing.`;
 console.log(linker.find_links(text))
 linker.register_definition('complex', 'a complex number')
 console.log(linker.find_links(text))
 linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
 console.log(linker.find_links(text))
+
+console.log(stemmer('conjugate'), stemmer('conjugated'), stemmer('conjugation'))
 
 // consider looking into natural (https://www.npmjs.com/package/natural), which has both stemming and POS, but is for node. there's probably others, but compromise is really pretty :)
 
