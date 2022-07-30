@@ -15,9 +15,11 @@ export class DummyAhoLinker {
         this.words = [];
         this.dictionary = {};
     }
-    register_definition(name, definition) {
-        this.dictionary[name] = definition;
-        this.words.push(name);
+    register_definitions(names_and_defs) {
+        for (const [name, def] of names_and_defs) {
+            this.dictionary[name] = def;
+            this.words.push(name);
+        }
         this.scanner = new FastScanner(this.words);
     }
     find_links(text) {
@@ -71,20 +73,49 @@ export class DummyAhoLinker {
 //  - stop word removal
 //      we might not need this if we have templated noun chunks
 
+//export class LessDummyAhoLinker {
+//    constructor() {
+//        console.log("this isn't implemented")
+//        this.dictionary = {};
+//        this.words = [];
+//        this.scanner = nlp.compile(this.words);
+//    }
+//    register_definitions(names_and_defs) {
+//        for (const [name, def] of names_and_defs) {
+//            this.dictionary[name] = def;
+//            this.words.push(nlp(name).compute('root').json()[0].terms.map(t => t.root || t.normal).join(' '));
+//        }
+//        //console.log(this.words);
+//        this.scanner = nlp.compile(this.words);
+//    }
+//    find_links(text) {
+//        const doc = nlp(text)
+//        doc.compute('root')
+//        let m = doc.lookup(this.words, {form:'root'})
+//        return m.json();    // not sure how to get indicies out
+//    }
+//}
+
+// ALSO TODO is returning indicies really the best interface like... maybe return a map function to go from found samples to spans or smt
+
 export class SlowStemSaladLinker {
     constructor() {
         console.log("hewooooooooooooooooorlddd")
         this.dictionary = {};   // nanoid -> definition
         this.stems = {};        // nanoid -> stems list
+        this.scanner = nlp.compile
     }
     register_definition(name, definition) {
         const id = nanoid(16);
         this.dictionary[id] = definition;
-        this.stems[id] = name.split(/\s+/).map(stemmer);
-        //const thing = nlp(name).compute('root').json()[0].terms.map(t => t.root || t.normal);
-        const thing = nlp(name).compute('root').json()[0].terms;
-        console.log(thing);
-        //this.stems[id] = .json[0].terms.map(t => t.root || t.normal); // https://observablehq.com/@spencermountain/compromise-root#cell-23
+        //this.stems[id] = name.split(/\s+/).map(stemmer);
+        this.stems[id] = nlp(name).terms().out('array').map(stemmer);        // use compromise normalization
+        console.log(this.stems[id]);
+
+        //const thing = nlp(name).compute('root').json()[0].terms.map(t => t.root || t.normal); // https://observablehq.com/@spencermountain/compromise-root#cell-23
+        //const thing = nlp(name).compute('root').json()[0].terms;
+        //console.log(thing);
+        //this.stems[id] = .json[0].terms.map(t => t.root || t.normal);
     }
     find_links(text) {
         const KW_PATTERNS = [  ]
@@ -99,12 +130,12 @@ export class SlowStemSaladLinker {
     }
 }
 
-const linker = new SlowStemSaladLinker();
+const linker = new LessDummyAhoLinker();
 const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugation, since the conjugation of a number that isn't complex does nothing.`;
 console.log(linker.find_links(text))
-linker.register_definition('complex', 'a complex number')
+linker.register_definitions([['complex', 'a complex number']])
 console.log(linker.find_links(text))
-linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
+linker.register_definitions([['complex conjugate', 'a complex number but with the negative part flipped']])
 console.log(linker.find_links(text))
 
 console.log(stemmer('conjugate'), stemmer('conjugated'), stemmer('conjugation'))

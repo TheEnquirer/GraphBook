@@ -22,7 +22,7 @@ function TextWithHovers({ text }) {
 
     const parser = useMemo(() => {
         const linker = new DummyAhoLinker();
-        Object.entries(definitions).forEach(([name, def]) => linker.register_definition.apply(linker, [name, def]));
+        linker.register_definitions(Object.entries(definitions));
         return linker.find_links.bind(linker);
     }, [definitions]);
     // parser.find_links(text) -> immutable.List([ [beg_idx_inc, end_idx_exc, '12', 'twelve.'], etc ])
