@@ -4261,6 +4261,11 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
+fastscan@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/fastscan/-/fastscan-1.0.6.tgz#4efea05f60394f2d3e3634f5ee2291be0e67d356"
+  integrity sha512-PGpoEDNcA4CEvLgJ0p8zN16A7jy1+F2VnxtEHq8ShafOd1SvAdEEnrlm7ZJQ0XxRka+bltaqYbB+lw2sSug6Hw==
+
 faye-websocket@^0.11.3:
   version "0.11.4"
   resolved "https://registry.npmjs.org/faye-websocket/-/faye-websocket-0.11.4.tgz"
@@ -4875,6 +4880,11 @@ immer@^9.0.7:
   resolved "https://registry.npmjs.org/immer/-/immer-9.0.15.tgz"
   integrity sha512-2eB/sswms9AEUSkOm4SbV5Y7Vmt/bKRwByd52jfLkW4OLYeaTP3EEiJ9agqU0O/tq6Dk62Zfj+TJSqfm1rLVGQ==
 
+immutable@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.1.0.tgz#f795787f0db780183307b9eb2091fcac1f6fafef"
+  integrity sha512-oNkuqVTA8jqG1Q6c+UglTOD1xhC1BtjKI7XkCXRkZHrN5m18/XsnUp8Q89GkQO/z+0WjonSvl0FLhDYftp46nQ==
+
 import-fresh@^3.0.0, import-fresh@^3.1.0, import-fresh@^3.2.1:
   version "3.3.0"
   resolved "https://registry.npmjs.org/import-fresh/-/import-fresh-3.3.0.tgz"
@@ -5182,9 +5192,6 @@ jake@^10.8.5:
     chalk "^4.0.2"
     filelist "^1.0.1"
     minimatch "^3.0.4"
-
-jentity_linker@./../jentity_linker:
-  version "0.0.1"
 
 jest-changed-files@^27.5.1:
   version "27.5.1"
