@@ -1,5 +1,9 @@
 import FastScanner from 'fastscan';
+import { nanoid } from 'nanoid';
 import { List } from 'immutable';
+
+import winkNLP from 'wink-nlp';
+const { its, as } = winkNLP;
 
 import { useMemo } from 'react';
 
@@ -25,9 +29,8 @@ export class DummyAhoLinker {
     }
 }
 
-const linker = new DummyAhoLinker();
-const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
-
+//const linker = new DummyAhoLinker();
+//const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
 //console.log(linker.find_links(text))
 //linker.register_definition('complex', 'a complex number')
 //console.log(linker.find_links(text))
@@ -60,6 +63,49 @@ const text = `Every real number equals its complex conjugate. Thus if we are dea
 // - spacy: js integration is scuffed, certainly need a python server somewhere; spacy-js seems broken so lets try spacy-nlp
 // - wink-nlp: js first, but it certainly isn't as complete as spacy and may not have dependencies... i suspect wink won't be able to get us dependencies
 // - compromise (https://github.com/spencermountain/compromise): browser first, similar limitations to wink (but it looks like an even smaller ecosystem). compromise has a limited wordlist so it probably won't be able to lemmatize textbooks which have obscure words
+
+//  okay, lets go for wink. i think we can get away with not using dependency parsing 
+//  options to look into   
+//  - stemming vs lemmatization
+//      stemming is rule-based and thus should work on out-of-dict words. it's also faster. only downside is that stems may not be actual words, but that's okay because we're probably gonna shuffle the lemattized words anyways?
+//  - stop word removal
+//      we might not need this if we have templated noun chunks
+
+export class SlowStemSaladLinker {
+    constructor() {
+        console.log("hewooooooooooooooooorlddd")
+        import model from 'wink-eng-lite-web-model';
+        this.dictionary = {};   // nanoid -> definition
+        this.stems = {};        // nanoid -> stems list
+        this.nlp = winkNLP(model);
+    }
+    register_definition(name, definition) {
+        const id = nanoid(16);
+        this.dictionary[id] = definition;
+        this.stems[id] = 0; // TODO
+    }
+    find_links(text) {
+        const doc = 3;
+        //return this.scanner.search(text)
+        //    // replace previous if idx is the same, append if it isn't
+        //    .reduce((a, c) => a.size > 0 && a.last()[0] == c[0] ? a.set(a.size-1, c) : a.push(c), List())
+        //    // map to the output format of [begin_inc, end_exc, name, definition]
+        //    .map(([idx, name]) => [idx, idx+name.length, name, this.dictionary[name]]);
+    }
+}
+
+const linker = new SlowStemSaladLinker();
+const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
+console.log(linker.find_links(text))
+linker.register_definition('complex', 'a complex number')
+console.log(linker.find_links(text))
+linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
+console.log(linker.find_links(text))
+
+
+
+
+
 
 //class Linker {
 //    constructor() {
