@@ -99,19 +99,34 @@ export class DummyAhoLinker {
 // ALSO TODO is returning indicies really the best interface like... maybe return a map function to go from found samples to spans or smt
 
 export class SlowStemSaladLinker {
+    // assumptions
+    // definitions have few words 
+    // definitions will always be more fully qualified than their references
+    // no deletion bc sequentially indexed thingies
     constructor() {
         console.log("hewooooooooooooooooorlddd")
-        this.dictionary = {};   // nanoid -> definition
-        this.stems = {};        // nanoid -> stems list
+        this.dictionary = [];
+        this.stems = [];
+        this.stem_postings = {};
+        //this.dictionary = {};   // nanoid -> definition
+        //this.stems = {};        // nanoid -> stems list
         // TODO: some kind of fast query subset overlap DS? or bloom filter
     }
     register_definitions(names_and_defs) {
         for (const [name, def] of names_and_defs) {
-            const id = nanoid(16);
-            this.dictionary[id] = def;
-            //this.stems[id] = name.split(/\s+/).map(stemmer);
-            this.stems[id] = nlp(name).terms().out('array').map(stemmer);        // use compromise normalization
-            //console.log(this.stems[id]);
+            const id = this.dictionary.length;
+            this.dictionary.push(def);
+
+            const stems = name.split(/\s+/).map(stemmer);
+            //const stems = nlp(name).terms().out('array').map(stemmer)
+            this.stems.push(stems);
+
+            stems.forEach(stem => this.stem_postings)
+            for (const stem of stems) {
+                if (!this.stem_postings.hasOwnProperty(stem))
+                    this.stem_postings[stem] = [];
+                this.stem_postings[stem].push(stem);
+            }
         }
     }
     find_links(text) {
@@ -119,15 +134,17 @@ export class SlowStemSaladLinker {
         //const terms = nlp(text).terms().out('array');
         //const stems = terms.map(stemmer);
 
-        console.log(nlp(text).json()[0].terms.map(t => [t.normal, t.tags]))
+        console.log(nlp(text).json().map(j => j.terms.map(t => `${t.normal} ${t.tags}`)))
 
-        const terms = nlp(text).match('(#Adjective|#Possessive)* #Noun*').out('array');
+        const terms = nlp(text).match('(#Adjective|#Possessive)* #Noun+').json({ offset: true })
+        //const terms = nlp(text).nouns().parse()[0];
+        //console.log(terms.determiner, terms.adjectives, terms.root)
         //const terms = nlp(text).match('#Adjective #Noun').out('array');
 
         //const got = nlp(text)
         //    .match()
         //    .out('array');
-        //return terms;
+        return terms;
 
         //console.log(nlp(text).chunks().out('array'))
         //console.log(nlp(text).terms().out('array'))
