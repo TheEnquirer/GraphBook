@@ -2,8 +2,8 @@ import FastScanner from 'fastscan';
 import { nanoid } from 'nanoid';
 import { List } from 'immutable';
 
-import winkNLP from 'wink-nlp';
-const { its, as } = winkNLP;
+import nlp from 'compromise';
+import { stemmer } from 'stemmer';
 
 import { useMemo } from 'react';
 
@@ -15,9 +15,11 @@ export class DummyAhoLinker {
         this.words = [];
         this.dictionary = {};
     }
-    register_definition(name, definition) {
-        this.dictionary[name] = definition;
-        this.words.push(name);
+    register_definitions(names_and_defs) {
+        for (const [name, def] of names_and_defs) {
+            this.dictionary[name] = def;
+            this.words.push(name);
+        }
         this.scanner = new FastScanner(this.words);
     }
     find_links(text) {
@@ -71,21 +73,82 @@ export class DummyAhoLinker {
 //  - stop word removal
 //      we might not need this if we have templated noun chunks
 
+//export class LessDummyAhoLinker {
+//    constructor() {
+//        console.log("this isn't implemented")
+//        this.dictionary = {};
+//        this.words = [];
+//        this.scanner = nlp.compile(this.words);
+//    }
+//    register_definitions(names_and_defs) {
+//        for (const [name, def] of names_and_defs) {
+//            this.dictionary[name] = def;
+//            this.words.push(nlp(name).compute('root').json()[0].terms.map(t => t.root || t.normal).join(' '));
+//        }
+//        //console.log(this.words);
+//        this.scanner = nlp.compile(this.words);
+//    }
+//    find_links(text) {
+//        const doc = nlp(text)
+//        doc.compute('root')
+//        let m = doc.lookup(this.words, {form:'root'})
+//        return m.json();    // not sure how to get indicies out
+//    }
+//}
+
+// ALSO TODO is returning indicies really the best interface like... maybe return a map function to go from found samples to spans or smt
+
 export class SlowStemSaladLinker {
+    // assumptions
+    // definitions have few words 
+    // definitions will always be more fully qualified than their references
+    // no deletion bc sequentially indexed thingies
     constructor() {
         console.log("hewooooooooooooooooorlddd")
-        import model from 'wink-eng-lite-web-model';
-        this.dictionary = {};   // nanoid -> definition
-        this.stems = {};        // nanoid -> stems list
-        this.nlp = winkNLP(model);
+        this.dictionary = [];
+        this.stems = [];
+        this.stem_postings = {};
+        //this.dictionary = {};   // nanoid -> definition
+        //this.stems = {};        // nanoid -> stems list
+        // TODO: some kind of fast query subset overlap DS? or bloom filter
     }
-    register_definition(name, definition) {
-        const id = nanoid(16);
-        this.dictionary[id] = definition;
-        this.stems[id] = 0; // TODO
+    register_definitions(names_and_defs) {
+        for (const [name, def] of names_and_defs) {
+            const id = this.dictionary.length;
+            this.dictionary.push(def);
+
+            const stems = name.split(/\s+/).map(stemmer);
+            //const stems = nlp(name).terms().out('array').map(stemmer)
+            this.stems.push(stems);
+
+            stems.forEach(stem => this.stem_postings)
+            for (const stem of stems) {
+                if (!this.stem_postings.hasOwnProperty(stem))
+                    this.stem_postings[stem] = [];
+                this.stem_postings[stem].push(stem);
+            }
+        }
     }
     find_links(text) {
-        const doc = 3;
+
+        //const terms = nlp(text).terms().out('array');
+        //const stems = terms.map(stemmer);
+
+        console.log(nlp(text).json().map(j => j.terms.map(t => `${t.normal} ${t.tags}`)))
+
+        const terms = nlp(text).match('(#Adjective|#Possessive)* #Noun+').json({ offset: true })
+        //const terms = nlp(text).nouns().parse()[0];
+        //console.log(terms.determiner, terms.adjectives, terms.root)
+        //const terms = nlp(text).match('#Adjective #Noun').out('array');
+
+        //const got = nlp(text)
+        //    .match()
+        //    .out('array');
+        return terms;
+
+        //console.log(nlp(text).chunks().out('array'))
+        //console.log(nlp(text).terms().out('array'))
+        //console.log(nlp(text).nouns().out('array'))
         //return this.scanner.search(text)
         //    // replace previous if idx is the same, append if it isn't
         //    .reduce((a, c) => a.size > 0 && a.last()[0] == c[0] ? a.set(a.size-1, c) : a.push(c), List())
@@ -95,14 +158,16 @@ export class SlowStemSaladLinker {
 }
 
 const linker = new SlowStemSaladLinker();
-const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate.`;
+const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugation, since the conjugation of a number that isn't complex does nothing.`;
 console.log(linker.find_links(text))
-linker.register_definition('complex', 'a complex number')
+linker.register_definitions([['complex', 'a complex number']])
 console.log(linker.find_links(text))
-linker.register_definition('complex conjugate', 'a complex number but with the negative part flipped')
+linker.register_definitions([['complex conjugate', 'a complex number but with the negative part flipped']])
 console.log(linker.find_links(text))
 
+console.log(stemmer('conjugate'), stemmer('conjugated'), stemmer('conjugation'))
 
+// consider looking into natural (https://www.npmjs.com/package/natural), which has both stemming and POS, but is for node. there's probably others, but compromise is really pretty :)
 
 
 
