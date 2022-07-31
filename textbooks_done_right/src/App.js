@@ -2,7 +2,7 @@ import './App.css';
 import parse from 'html-react-parser';
 //import htmlContent from './raw_book.html';
 import book from "./raw_book.jsx";
-import { useEffect, useState, createElement } from 'react';
+import { useEffect, useState, createElement, useRef } from 'react';
 import reactHtmlReplace from 'react-html-replace';
 import React, { Component, useMemo } from 'react';
 import _ from 'lodash';
@@ -10,9 +10,10 @@ import * as ReactDOM from 'react-dom'
 import { Virtuoso } from 'react-virtuoso'
 import { List } from 'immutable';
 
-import { TWELVE, DummyAhoLinker } from 'jentity_linker';
+//import { TWELVE, DummyAhoLinker } from 'jentity_linker';
 
 // hewwwuxxxxxxxxxxxx heres an example of how to use my thingy
+/*
 function TextWithHovers({ text }) {
     const definitions = {
         '12': TWELVE,
@@ -57,8 +58,11 @@ function App() {
     console.log('twelve?', TWELVE);
 
     return <TextWithHovers text={ `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugate. Anyways, complex numbers are cool right?` } />
+    */
 
+function App() {
 
+    const curBlueRef = useRef();
 
     const bookParser = (book) => {  // nice -alb
         // UTILS //
@@ -68,13 +72,39 @@ function App() {
             el !== null
         )
 
+	const appendToChildren = (obj, el) => {
+	    if (!obj.props || obj.props.children == undefined) {
+		//console.log('no children!')
+		//obj = React.createElement(
+		//    "span",
+		//    obj.props,
+		//    [obj, el]
+		//)
+		return
+	    }
+
+	    if (isObj(obj.props.children)) {
+		obj.props.children = [ obj.props.children, el ]
+		return
+	    }
+
+	    if (Array.isArray(obj.props.children)) {
+		obj.props.children.push(el)
+		return
+	    }
+	}
+
+
+	//const stringToSpan
+
         // CHECKS //
 
         // BLUE //
         let inBlue = false;
         let bIdx = -1;
         let blues = []
-        const checkBlue = (obj) => {
+	let blueEndIdxs = []
+        const checkBlue = (obj, prnt, idx) => {
             let localVal = null;
             if (obj.props && obj.props.className) {
                 if (obj.props.className.split(" ").includes("fca") && inBlue == false) {
@@ -94,13 +124,57 @@ function App() {
                 inBlue = true;
                 bIdx++;
                 blues.push([])
+		// prnt.blueEndIdxs = []
             }
 
             if (localVal === "end") {
                 inBlue = false
-            }
+		//prnt.blueEndIdxs.push(idx)
+		//console.log(obj)
+		//let el = React.createElement(
+		//    "div",
+		//    {
+		//        className: "",
+		//        style: {
+		//            border: "12px solid red",
+		//        }
+		//    },
+		//    "hii"
+		//)
+		//appendToChildren(obj, el)
+
+		//prnt.props.children.splice(idx, 0, el)
+		//prnt.props.children.splice(idx, 0, el)
+
+
+		//console.log(blues[bIdx], bIdx, blues[bIdx].length)
+		//if (blues[bIdx]) {
+		//    let lastBlue = blues[bIdx][blues[bIdx].length-1]
+		//    if (isObj(lastBlue)) {
+		//    //    lastBlue.props.children.push(el)
+		//        if (!Array.isArray(lastBlue.props.children)) {
+		//            lastBlue.props.children = [lastBlue.props.children]
+		//        }
+		//        let el = React.createElement(
+		//            "div",
+		//            {
+		//                className: "",
+		//                style: {
+		//                    border: "12px solid red",
+		//                }
+		//            },
+		//            "hii"
+		//        )
+		//        lastBlue.props.children.push(el)
+		//        console.log(lastBlue)
+		//    }
+		//}
+	    }
+
 
             if (inBlue) {
+		//obj.prnt = prnt
+		//obj.idx = idx
                 blues[bIdx].push(obj)
             }
 
@@ -140,37 +214,64 @@ function App() {
 
 
         // MAIN RECURSION LOOP //   // :eyes: -alb
-        const search = (obj) => {
-
-            checkBlue(obj);
-            checkDef(obj);
+        const search = (obj, prnt, idx) => {
+            checkBlue(obj, prnt, idx);
+            // checkDef(obj);
 
             // recurse
             if (obj.props && obj.props.children) {
                 if (isObj(obj.props.children)) {
-                    search(obj.props.children)
-                } else {
-                    //if (obj.props.children.push) obj.props.children.push("huh?")
-                    for (const i of obj.props.children) {
-                        search(i)
-                    }
+                    obj.props.children = [obj.props.children]
+		    //search(obj.props.children, obj)
                 }
+		//console.log(obj.props.children)
+		if (Array.isArray(obj.props.children)) {
+		    for (const [i,v] of obj.props.children.entries()) {
+			search(v, obj, i)
+		    }
+		}
             }
         }
 
         let repChildren = book.props.children[1].props.children[3].props.children
+
+
+        search(book, null, 0)
+	//console.log(blues)
+	for (const [i,blue] of blues.entries()) {
+	    let el = React.createElement(
+		"div",
+		{
+		    className: "",
+		    style: {
+			border: "12px solid red",
+		    }
+		},
+		"hii"
+	    )
+	    //appendToChildren(blue[blue.length-1], el)
+	    //console.log(blue[blue.length-1])
+	    let lastmostEl = null
+	    for (let jj = blue.length; jj >= 0; jj--) {
+		if (typeof blue[jj] === 'string' || blue[jj] instanceof String) {
+		    continue
+		}
+		lastmostEl = blue[jj]
+		break
+	    }
+
+	    //appendToChildren(lastmostEl, el)
+	    console.log(lastmostEl)
+	}
+
         book.props.children[1].props.children[3].props.children = [<Virtuoso
-            style={{ height: "800px", }}
-            totalCount={200}
+            style={{ height: "100vh", }}
+            totalCount={repChildren.length}
             //itemContent={(index) => <div>Item {index}</div>}
             itemContent={(index) => {
                 return <div style={{minHeight: "1px"}}> {repChildren[index]} </div>
             }}
             />]
-
-
-        search(book)
-        //console.log(blues)
         //console.log(
         //props.children[1].props.children[3].props.children
 
