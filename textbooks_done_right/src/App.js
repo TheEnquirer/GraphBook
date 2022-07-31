@@ -124,57 +124,14 @@ function App() {
                 inBlue = true;
                 bIdx++;
                 blues.push([])
-		// prnt.blueEndIdxs = []
             }
 
             if (localVal === "end") {
                 inBlue = false
-		//prnt.blueEndIdxs.push(idx)
-		//console.log(obj)
-		//let el = React.createElement(
-		//    "div",
-		//    {
-		//        className: "",
-		//        style: {
-		//            border: "12px solid red",
-		//        }
-		//    },
-		//    "hii"
-		//)
-		//appendToChildren(obj, el)
-
-		//prnt.props.children.splice(idx, 0, el)
-		//prnt.props.children.splice(idx, 0, el)
-
-
-		//console.log(blues[bIdx], bIdx, blues[bIdx].length)
-		//if (blues[bIdx]) {
-		//    let lastBlue = blues[bIdx][blues[bIdx].length-1]
-		//    if (isObj(lastBlue)) {
-		//    //    lastBlue.props.children.push(el)
-		//        if (!Array.isArray(lastBlue.props.children)) {
-		//            lastBlue.props.children = [lastBlue.props.children]
-		//        }
-		//        let el = React.createElement(
-		//            "div",
-		//            {
-		//                className: "",
-		//                style: {
-		//                    border: "12px solid red",
-		//                }
-		//            },
-		//            "hii"
-		//        )
-		//        lastBlue.props.children.push(el)
-		//        console.log(lastBlue)
-		//    }
-		//}
 	    }
 
 
             if (inBlue) {
-		//obj.prnt = prnt
-		//obj.idx = idx
                 blues[bIdx].push(obj)
             }
 
@@ -221,11 +178,18 @@ function App() {
             // recurse
             if (obj.props && obj.props.children) {
                 if (isObj(obj.props.children)) {
-                    obj.props.children = [obj.props.children]
-		    //search(obj.props.children, obj)
+                    //obj = _.clone(obj)
+		    obj.ref = curBlueRef
+		    obj.props.children = [obj.props.children]
+		    //search(obj.props.children, obj, 0)
                 }
 		//console.log(obj.props.children)
 		if (Array.isArray(obj.props.children)) {
+		    //let tempChildren = _.cloneDeep(obj.props.children)
+			//.map(item => <div style={{minHeight: "1px"}}>{item}</div>) // we don't need this
+		    //obj.props.children.splice(0, tempChildren.length)
+		    //obj.props.children.concat(tempChildren.map(item => <div style={{minHeight: "1px"}}>{item}</div>))
+		    //obj = _.cloneDeepWith(obj, customC)
 		    for (const [i,v] of obj.props.children.entries()) {
 			search(v, obj, i)
 		    }
@@ -235,53 +199,23 @@ function App() {
 
         let repChildren = book.props.children[1].props.children[3].props.children
 
-
         search(book, null, 0)
 	//console.log(blues)
-	for (const [i,blue] of blues.entries()) {
-	    let el = React.createElement(
-		"div",
-		{
-		    className: "",
-		    style: {
-			border: "12px solid red",
-		    }
-		},
-		"hii"
-	    )
-	    //appendToChildren(blue[blue.length-1], el)
-	    //console.log(blue[blue.length-1])
-	    let lastmostEl = null
-	    for (let jj = blue.length; jj >= 0; jj--) {
-		if (typeof blue[jj] === 'string' || blue[jj] instanceof String) {
-		    continue
-		}
-		lastmostEl = blue[jj]
-		break
-	    }
+	//book.props.children[1].props.children.props.children[3].props.children = [<Virtuoso
 
-	    //appendToChildren(lastmostEl, el)
-	    console.log(lastmostEl)
+	book.props.children[1].props.children[3].props.children = [<Virtuoso
+	    style={{ height: "100vh", }}
+	    totalCount={repChildren.length}
+	    //itemContent={(index) => <div>Item {index}</div>}
+	    itemContent={(index) => {
+		return repChildren[index]
+	    }}
+	    />]
+
+        return {
+	    book: book,
+	    blues: blues,
 	}
-
-        book.props.children[1].props.children[3].props.children = [<Virtuoso
-            style={{ height: "100vh", }}
-            totalCount={repChildren.length}
-            //itemContent={(index) => <div>Item {index}</div>}
-            itemContent={(index) => {
-                return <div style={{minHeight: "1px"}}> {repChildren[index]} </div>
-            }}
-            />]
-        //console.log(
-        //props.children[1].props.children[3].props.children
-
-        //const element = React.createElement(
-        //    'h1',
-        //    {className: 'greeting'},
-        //    'Hello, world!'
-        //);
-
-        return book
         //NW TODO: we append the page svgs
     }
 
@@ -290,13 +224,29 @@ function App() {
 
     const reconstruct = (book) => {
         return _.cloneDeep(book)
-        //return book
     }
 
     useEffect(() => {
         let parsed = reconstruct(parse(book))
         setParsed(bookParser(parsed))
     }, [])
+
+    useEffect(() => {
+	console.log("triggering a displayParsed change", displayParsed)
+	if (displayParsed) {
+	    for (const blue of displayParsed.blues) {
+		//console.log(curBlueRef.current)
+		setTimeout(() => {
+		    //console.log(curBlueRef.current)
+		    blue.ref = curBlueRef
+		}, 1000)
+		setTimeout(() => {
+		    console.log(curBlueRef.current)
+		    if (curBlueRef.current) {console.log(curBlueRef.current.getBoundingClientRect())}
+		}, 2000)
+	    }
+	}
+    }, [displayParsed])
 
     //{foundBlues.map((blue, idx) => {
     //    return blue.map((el, idx) => {
@@ -311,7 +261,7 @@ function App() {
     totalCount={200000}
     itemContent={(index) => <div>Item {index}</div>}
   />*/}
-        {displayParsed}
+        {displayParsed.book}
         </>
     );
 }
