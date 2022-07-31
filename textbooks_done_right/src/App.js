@@ -228,24 +228,18 @@ function App() {
 
     useEffect(() => {
         let parsed = reconstruct(parse(book))
-        setParsed(bookParser(parsed))
+        //setParsed(bookParser(parsed))
+        setParsed(parsed)
     }, [])
 
     useEffect(() => {
 	console.log("triggering a displayParsed change", displayParsed)
-	if (displayParsed) {
-	    for (const blue of displayParsed.blues) {
-		//console.log(curBlueRef.current)
-		setTimeout(() => {
-		    //console.log(curBlueRef.current)
-		    blue.ref = curBlueRef
-		}, 1000)
-		setTimeout(() => {
-		    console.log(curBlueRef.current)
-		    if (curBlueRef.current) {console.log(curBlueRef.current.getBoundingClientRect())}
-		}, 2000)
-	    }
-	}
+	console.log(curBlueRef.current)
+	//if (curBlueRef.current) {
+	//    for (const el of curBlueRef.current) {
+	//        console.log(el)
+	//    }
+	//}
     }, [displayParsed])
 
     //{foundBlues.map((blue, idx) => {
@@ -261,7 +255,7 @@ function App() {
     totalCount={200000}
     itemContent={(index) => <div>Item {index}</div>}
   />*/}
-        {displayParsed.book}
+	    <div ref={curBlueRef}> {displayParsed} </div>
         </>
     );
 }
