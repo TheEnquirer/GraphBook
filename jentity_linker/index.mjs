@@ -103,22 +103,32 @@ export class SlowStemSaladLinker {
         console.log("hewooooooooooooooooorlddd")
         this.dictionary = {};   // nanoid -> definition
         this.stems = {};        // nanoid -> stems list
-        this.scanner = nlp.compile
+        // TODO: some kind of fast query subset overlap DS? or bloom filter
     }
-    register_definition(name, definition) {
-        const id = nanoid(16);
-        this.dictionary[id] = definition;
-        //this.stems[id] = name.split(/\s+/).map(stemmer);
-        this.stems[id] = nlp(name).terms().out('array').map(stemmer);        // use compromise normalization
-        console.log(this.stems[id]);
-
-        //const thing = nlp(name).compute('root').json()[0].terms.map(t => t.root || t.normal); // https://observablehq.com/@spencermountain/compromise-root#cell-23
-        //const thing = nlp(name).compute('root').json()[0].terms;
-        //console.log(thing);
-        //this.stems[id] = .json[0].terms.map(t => t.root || t.normal);
+    register_definitions(names_and_defs) {
+        for (const [name, def] of names_and_defs) {
+            const id = nanoid(16);
+            this.dictionary[id] = def;
+            //this.stems[id] = name.split(/\s+/).map(stemmer);
+            this.stems[id] = nlp(name).terms().out('array').map(stemmer);        // use compromise normalization
+            //console.log(this.stems[id]);
+        }
     }
     find_links(text) {
-        const KW_PATTERNS = [  ]
+
+        //const terms = nlp(text).terms().out('array');
+        //const stems = terms.map(stemmer);
+
+        console.log(nlp(text).json()[0].terms.map(t => [t.normal, t.tags]))
+
+        const terms = nlp(text).match('(#Adjective|#Possessive)* #Noun*').out('array');
+        //const terms = nlp(text).match('#Adjective #Noun').out('array');
+
+        //const got = nlp(text)
+        //    .match()
+        //    .out('array');
+        //return terms;
+
         //console.log(nlp(text).chunks().out('array'))
         //console.log(nlp(text).terms().out('array'))
         //console.log(nlp(text).nouns().out('array'))
@@ -130,7 +140,7 @@ export class SlowStemSaladLinker {
     }
 }
 
-const linker = new LessDummyAhoLinker();
+const linker = new SlowStemSaladLinker();
 const text = `Every real number equals its complex conjugate. Thus if we are dealing with a real vector space, then in the last condition above we can dispense with the complex conjugation, since the conjugation of a number that isn't complex does nothing.`;
 console.log(linker.find_links(text))
 linker.register_definitions([['complex', 'a complex number']])
