@@ -121,7 +121,6 @@ export class SlowStemSaladLinker {
             //const stems = nlp(name).terms().out('array').map(stemmer)
             this.stems.push(stems);
 
-            stems.forEach(stem => this.stem_postings)
             for (const stem of stems) {
                 if (!this.stem_postings.hasOwnProperty(stem))
                     this.stem_postings[stem] = [];
