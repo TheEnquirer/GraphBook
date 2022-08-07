@@ -63,6 +63,7 @@ function App() {
 function App() {
 
     const curBlueRef = useRef();
+    const testRef = useRef();
 
     const bookParser = (book) => {  // nice -alb
         // UTILS //
@@ -221,6 +222,7 @@ function App() {
 
     const [foundBlues, setBlues] = useState([]);
     const [displayParsed, setParsed] = useState("");
+    const [nextRender, triggerNextRender] = useState(0);
 
     const reconstruct = (book) => {
         return _.cloneDeep(book)
@@ -234,13 +236,33 @@ function App() {
 
     useEffect(() => {
 	console.log("triggering a displayParsed change", displayParsed)
-	console.log(curBlueRef.current)
+	console.log(curBlueRef.current?.children, "waiiiit a second")
+
+	if (curBlueRef.current) {
+	    for (const el of curBlueRef.current.children) {
+		//el.ref = testRef
+		//console.log(el)
+		console.log(el.children[1].children[0].getBoundingClientRect(), "ayyyyup?")
+		//console.log(el.children)
+		triggerNextRender(nextRender+1)
+	    }
+	}
 	//if (curBlueRef.current) {
 	//    for (const el of curBlueRef.current) {
 	//        console.log(el)
 	//    }
 	//}
     }, [displayParsed])
+
+    useEffect(() => {
+	if (curBlueRef.current) {
+	    for (const el of curBlueRef.current.children) {
+		el.children[0].ref = testRef
+		console.log(el.children, "here")
+	    }
+	}
+
+    }, [nextRender])
 
     //{foundBlues.map((blue, idx) => {
     //    return blue.map((el, idx) => {
