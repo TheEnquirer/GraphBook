@@ -105,17 +105,17 @@ function App() {
         let bIdx = -1;
         let blues = []
 	let blueEndIdxs = []
-        const checkBlue = (obj, prnt, idx) => {
+        const checkBlue = (obj) => {
             let localVal = null;
-            if (obj.props && obj.props.className) {
-                if (obj.props.className.split(" ").includes("fca") && inBlue == false) {
+            if (obj.className) {
+                if (obj.className.split(" ").includes("fca") && inBlue == false) {
                     localVal = "start"
                 }
 
                 else if (
-                    obj.props.className.split(" ").includes("fc7")
-                    || obj.props.className.split(" ").includes("x9")
-                    || obj.props.className.split(" ").includes("x69")
+                    obj.className.split(" ").includes("fc7")
+                    || obj.className.split(" ").includes("x9")
+                    || obj.className.split(" ").includes("x69")
                 ) {
                     localVal = "end"
                 }
@@ -139,6 +139,7 @@ function App() {
             return localVal
         }
 
+	/*
         let defIdx = -1;
         let defs = []
         let inDef = false;
@@ -169,41 +170,70 @@ function App() {
                 defs[defIdx].push(obj)
             }
         }
+	*/
 
+    	let max_recur = 1000
+	let recur = 0;
 
         // MAIN RECURSION LOOP //   // :eyes: -alb
-        const search = (obj, prnt, idx) => {
-            checkBlue(obj, prnt, idx);
+        const search = (obj) => {
+	    //recur += 1
+	    //if (recur > max_recur) { console.log('max recur achieved'); return }
+
+	    checkBlue(obj)
+
+	    //if (obj.props) {
+	    //    console.log(obj, "i got props bro")
+	    //}
+	    // can be either props.children or children
+	    // children can be either an arr of children of just a single object
+	    // or, null
+
+	    //console.log(obj.className)
+
+	    if (obj.children) {
+		for (const child of obj.children) {
+		    search(child)
+		}
+	    } else if (obj.props.childen) {
+		console.log("hii we have props childen", obj)
+	    }
+
+	    //###################################################################//
+
+            //checkBlue(obj);
             // checkDef(obj);
 
             // recurse
-            if (obj.props && obj.props.children) {
-                if (isObj(obj.props.children)) {
+	/*
+            if (obj.props && obj.children) {
+                if (isObj(obj.children)) {
                     //obj = _.clone(obj)
-		    obj.ref = curBlueRef
-		    obj.props.children = [obj.props.children]
-		    //search(obj.props.children, obj, 0)
+		    //obj.ref = curBlueRef
+		    //obj.props.children = [obj.props.children]
+		    search(obj.children)
                 }
 		//console.log(obj.props.children)
-		if (Array.isArray(obj.props.children)) {
+		if (Array.isArray(obj.children)) {
 		    //let tempChildren = _.cloneDeep(obj.props.children)
 			//.map(item => <div style={{minHeight: "1px"}}>{item}</div>) // we don't need this
 		    //obj.props.children.splice(0, tempChildren.length)
 		    //obj.props.children.concat(tempChildren.map(item => <div style={{minHeight: "1px"}}>{item}</div>))
 		    //obj = _.cloneDeepWith(obj, customC)
-		    for (const [i,v] of obj.props.children.entries()) {
-			search(v, obj, i)
+		    for (const [i,v] of obj.children.entries()) {
+			search(v)
 		    }
 		}
             }
+	*/
         }
 
-        let repChildren = book.props.children[1].props.children[3].props.children
+        //let repChildren = book.props.children[1].props.children[3].props.children
 
-        search(book, null, 0)
+        search(book)
 	//console.log(blues)
 	//book.props.children[1].props.children.props.children[3].props.children = [<Virtuoso
-
+/*
 	book.props.children[1].props.children[3].props.children = [<Virtuoso
 	    style={{ height: "100vh", }}
 	    totalCount={repChildren.length}
@@ -212,6 +242,7 @@ function App() {
 		return repChildren[index]
 	    }}
 	    />]
+	    */
 
         return {
 	    book: book,
@@ -234,41 +265,22 @@ function App() {
         setParsed(parsed)
     }, [])
 
+
     useEffect(() => {
-	console.log("triggering a displayParsed change", displayParsed)
-	console.log(curBlueRef.current?.children, "waiiiit a second")
+	//console.log("triggering a displayParsed change", displayParsed)
+	//console.log(curBlueRef.current?.children, "waiiiit a second")
 
 	if (curBlueRef.current) {
 	    for (const el of curBlueRef.current.children) {
-		//el.ref = testRef
-		//console.log(el)
-		console.log(el.children[1].children[0].getBoundingClientRect(), "ayyyyup?")
-		//console.log(el.children)
-		triggerNextRender(nextRender+1)
+		//console.log(el.children[1].children[0].getBoundingClientRect(), "ayyyyup?")
+		//console.log(curBlueRef.current.children[0].children[1].children[1].children[300].getBoundingClientRect(), "yeah")
+		let bookData = bookParser(curBlueRef.current.children[0].children[1].children[1]);
+		console.log(bookData.blues)
 	    }
 	}
-	//if (curBlueRef.current) {
-	//    for (const el of curBlueRef.current) {
-	//        console.log(el)
-	//    }
-	//}
     }, [displayParsed])
 
-    useEffect(() => {
-	if (curBlueRef.current) {
-	    for (const el of curBlueRef.current.children) {
-		el.children[0].ref = testRef
-		console.log(el.children, "here")
-	    }
-	}
 
-    }, [nextRender])
-
-    //{foundBlues.map((blue, idx) => {
-    //    return blue.map((el, idx) => {
-    //        return el
-    //    })}
-    //)}
 
     return (
         <>
