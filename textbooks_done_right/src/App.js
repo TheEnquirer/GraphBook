@@ -260,9 +260,9 @@ function App() {
 			},
 			"hiii"
 		    )
-		    //let temp = foundBlues
-		    //foundBlues.push(marker)
-		    //setBlues([...foundBlues])
+		    let temp = foundBlues
+		    foundBlues.push(marker)
+		    setBlues([...foundBlues])
 		    theBlueMarkers.push(marker)
 		}
 	    }
@@ -290,10 +290,21 @@ function App() {
 	    //curBlueRef.current.children[0].children[1].appendChild(m)
 	    if (curBlueRef?.current?.children[0]?.children[1]) {
 		//ReactDOM.createPortal(m, curBlueRef.current.children[0].children[1])
-		console.log(curBlueRef.current.children[0].children[1].children, "we are appending baby", m)
-		//console.log(curBlueRef.current.children[0].children[1].appendChild(m))
+		console.log(curBlueRef.current.children[0].children[1].children, "we *aren't appending baby", m)
+		//curBlueRef.current.children[0].children[1].append("<div>hiii</div>")
+		const ell = document.createElement("div")
+		ell.innerText = "hi albbbbbbbbbbbbbbbbbbbbbbbberrrrrrttttttttttttttttttttttttttt"
+		ell.style.border = "1px solid red"
+		ell.style.zIndex = "1000"
+		ell.style.position = "absolute"
+		ell.style.top = "100px"
+		//curBlueRef.current.children[0].children[1].appendChild(ell)
+		//curBlueRef.current.children[0].children[1].appendChild(ell)
+		curBlueRef.current.children[0].children[1].children[1].children[1].appendChild(ell)
+		console.log(curBlueRef.current.children[0].children[1].children[1].children[1], "yes")
+		console.log(ell)
 		//console.log(curBlueRef.current.children[0].children[1].children, "we are appending baby")
-		document.body.appendChild(<div> huiii? </div>);
+		//document.body.appendChild(<div> huiii? </div>);
 
 	    }
 	}
@@ -308,8 +319,20 @@ function App() {
     totalCount={200000}
     itemContent={(index) => <div>Item {index}</div>}
   />*/}
-	    <div ref={curBlueRef}> {displayParsed}
-	    {//foundBlues.map((marker, idx) => marker)
+	    <div ref={curBlueRef}>
+		{displayParsed}
+		{
+		    /*() => {
+			console.log(displayParsed.children, "hi?")
+			if (displayParsed.children && displayParsed.children[0].children) {
+
+			    return displayParsed.children[0].children[1]
+			}
+			return <div> notin. </div>
+		    }*/
+		}
+	    {
+		//foundBlues.map((marker, idx) => marker)
 	    }
 	    </div>
         </>
