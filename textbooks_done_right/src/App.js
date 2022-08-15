@@ -104,7 +104,7 @@ function App() {
         let inBlue = false;
         let bIdx = -1;
         let blues = []
-	let blueEndIdxs = []
+	let curPage = null
         const checkBlue = (obj) => {
             let localVal = null;
             if (obj.className) {
@@ -124,7 +124,10 @@ function App() {
             if (localVal === "start") {
                 inBlue = true;
                 bIdx++;
-                blues.push([])
+                blues.push({
+		    elements: [],
+		    enclosing: curPage,
+		})
             }
 
             if (localVal === "end") {
@@ -133,11 +136,18 @@ function App() {
 
 
             if (inBlue) {
-                blues[bIdx].push(obj)
+                blues[bIdx].elements.push(obj)
             }
 
             return localVal
         }
+
+	const checkPage = obj => {
+	    if (obj.id.includes("pf")) {
+		console.log(obj)
+		curPage = obj;
+	    }
+	}
 
 	/*
         let defIdx = -1;
@@ -172,14 +182,15 @@ function App() {
         }
 	*/
 
-    	let max_recur = 1000
+    	let max_recur = 100
 	let recur = 0;
+	let lim = false
 
         // MAIN RECURSION LOOP //   // :eyes: -alb
         const search = (obj) => {
-	    //recur += 1
-	    //if (recur > max_recur) { console.log('max recur achieved'); return }
-
+	    recur += 1
+	    if (lim && recur > max_recur) { console.log('max recur achieved'); return }
+	    checkPage(obj)
 	    checkBlue(obj)
 
 
@@ -196,6 +207,7 @@ function App() {
         //let repChildren = book.props.children[1].props.children[3].props.children
 
         search(book)
+	console.log(book, "the book")
 	//book.props.children[1].props.children.props.children[3].props.children = [<Virtuoso
 /*
 	book.props.children[1].props.children[3].props.children = [<Virtuoso
@@ -226,14 +238,15 @@ function App() {
     useEffect(() => {
         let parsed = reconstruct(parse(book))
         //setParsed(bookParser(parsed))
-        setParsed(parsed)
+	//console.log(parsed.props.children[1].props.children[3], "wha?")
+        //setParsed(parsed)
+	setParsed(parsed)
     }, [])
 
 
     useEffect(() => {
 	//console.log("triggering a displayParsed change", displayParsed)
 	//console.log(curBlueRef.current?.children, "waiiiit a second")
-	let theBlueMarkers = []
 	if (curBlueRef.current) {
 	    for (const el of curBlueRef.current.children) { // no idea what this does but aight
 		//console.log(el.children[1].children[0].getBoundingClientRect(), "ayyyyup?")
@@ -241,71 +254,33 @@ function App() {
 
 		let bookData = bookParser(curBlueRef.current.children[0].children[1].children[1]);
 		console.log(bookData.blues)
-		console.log("this runnin?")
 		for (const blue of bookData.blues) {
-		    let bounding = blue[0].getBoundingClientRect()
-		    //console.log(bounding)
-		    let marker = React.createElement(
-			"div",
-			{
-			    style: {
-				border: "1px solid red",
-				position: "absolute",
-				x: bounding.x,
-				y: bounding.y,
-				bottom: bounding.bottom,
-				top: bounding.top,
-				//...bounding
-			    }
-			},
-			"hiii"
-		    )
-		    let temp = foundBlues
-		    foundBlues.push(marker)
-		    setBlues([...foundBlues])
-		    theBlueMarkers.push(marker)
-		}
-	    }
-	    //for (const m of theBlueMarkers) {
-	    //    curBlueRef.current.children[0].children[1].children[1].push(m)
-	    //}
-	    let m = React.createElement(
-		"div",
-		{
-		    style: {
-			border: "1px solid red",
-			position: "absolute",
-			//x: bounding.x,
-			//y: bounding.y,
-			//bottom: bounding.bottom,
-			//top: bounding.top,
-			//...bounding
-		    }
-		},
-		"hiii"
-	    )
-	    console.log(m)
-	    //curBlueRef.current.children[0].children[1].children[1].children.push(m)
-	    //console.log(curBlueRef.current.children[0].children.push("yo?"))
-	    //curBlueRef.current.children[0].children[1].appendChild(m)
-	    if (curBlueRef?.current?.children[0]?.children[1]) {
-		//ReactDOM.createPortal(m, curBlueRef.current.children[0].children[1])
-		console.log(curBlueRef.current.children[0].children[1].children, "we *aren't appending baby", m)
-		//curBlueRef.current.children[0].children[1].append("<div>hiii</div>")
-		const ell = document.createElement("div")
-		ell.innerText = "hi albbbbbbbbbbbbbbbbbbbbbbbberrrrrrttttttttttttttttttttttttttt"
-		ell.style.border = "1px solid red"
-		ell.style.zIndex = "1000"
-		ell.style.position = "absolute"
-		ell.style.top = "100px"
-		//curBlueRef.current.children[0].children[1].appendChild(ell)
-		//curBlueRef.current.children[0].children[1].appendChild(ell)
-		curBlueRef.current.children[0].children[1].children[1].children[1].appendChild(ell)
-		console.log(curBlueRef.current.children[0].children[1].children[1].children[1], "yes")
-		console.log(ell)
-		//console.log(curBlueRef.current.children[0].children[1].children, "we are appending baby")
-		//document.body.appendChild(<div> huiii? </div>);
+		    let start_bounding = blue.elements[0].getBoundingClientRect()
+		    let end_bounding = blue.elements.at(-1).getBoundingClientRect()
 
+		    blue.elements.at(-1).style.border = "12px solid blue !important"
+		    //console.log(blue.elements.at(-1))
+		    let offset = Math.round(start_bounding.top - blue.enclosing.getBoundingClientRect().top)-11
+		    let height = Math.round(end_bounding.bottom-(blue.enclosing.getBoundingClientRect().top+offset))+11
+		    //console.log(height, offset)
+
+		    const ell = document.createElement("div")
+		    ell.innerText = "hi albbbbbbbbbbbbbbbbbbbbbbbberrrrrrttttttttttttttttttttttttttt"
+		    ell.style.border = "1px solid green"
+		    ell.style.zIndex = "1000"
+		    ell.style.position = "absolute"
+		    ell.style.top = `${offset}px`
+		    //ell.style.right = bounding.right
+		    //ell.style.left = bounding.left
+		    //ell.style.x = bounding.x
+		    ell.style.height = `${height}px`
+		    ell.style.marginLeft = "30px"
+		    ell.style.width = "500px"
+		    //ell.style.width = "300px"
+		    //ell.style.right = "29px"
+		    blue.enclosing.appendChild(ell)
+		    //console.log(start_bounding)
+		}
 	    }
 	}
     }, [displayParsed])
@@ -321,19 +296,6 @@ function App() {
   />*/}
 	    <div ref={curBlueRef}>
 		{displayParsed}
-		{
-		    /*() => {
-			console.log(displayParsed.children, "hi?")
-			if (displayParsed.children && displayParsed.children[0].children) {
-
-			    return displayParsed.children[0].children[1]
-			}
-			return <div> notin. </div>
-		    }*/
-		}
-	    {
-		//foundBlues.map((marker, idx) => marker)
-	    }
 	    </div>
         </>
     );
